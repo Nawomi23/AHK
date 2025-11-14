@@ -1,4 +1,4 @@
-﻿#SingleInstance, Force
+#SingleInstance, Force
 #UseHook
 #NoEnv
 SetWorkingDir %A_ScriptDir%
@@ -40,6 +40,47 @@ Download(url, file) {
 IfNotExist, %A_ScriptDir%\ahk
 {
     FileCreateDir, %A_ScriptDir%\ahk
+}
+
+; ====== ТЕКУЩАЯ ВЕРСИЯ СКРИПТА ======
+CurrentVersion := "1.0"
+
+; ====== ФАЙЛЫ НА GITHUB ======
+VersionURL := "https://raw.githubusercontent.com/Nawomi23/AHK/refs/heads/main/version.txt"
+ScriptURL := "https://raw.githubusercontent.com/Nawomi23/AHK/refs/heads/main/AHK%20by%20Norton.ahk"
+
+; ====== ПОЛУЧАЕМ ВЕРСИЮ ИЗ GITHUB ======
+UrlDownloadToFile, %VersionURL%, %A_Temp%\version.txt
+
+if FileExist(A_Temp "\version.txt")
+{
+    FileRead, NewVersion, %A_Temp%\version.txt
+    NewVersion := Trim(NewVersion)
+
+    ; ====== СРАВНИВАЕМ ВЕРСИИ ======
+    if (NewVersion != "" && NewVersion > CurrentVersion)
+    {
+        MsgBox, 4, Обновление доступно, Доступна новая версия (%NewVersion%).`nОбновить сейчас?
+        IfMsgBox Yes
+        {
+            ; Скачиваем новый скрипт
+            UrlDownloadToFile, %ScriptURL%, %A_ScriptFullPath%.new
+
+            if FileExist(A_ScriptFullPath ".new")
+            {
+                ; Заменяем старый
+                FileMove, %A_ScriptFullPath%.new, %A_ScriptFullPath%, 1
+
+                MsgBox, Обновление завершено! Скрипт будет перезапущен.
+                Run, %A_ScriptFullPath%
+                ExitApp
+            }
+            else
+            {
+                MsgBox, Не удалось скачать обновление!
+            }
+        }
+    }
 }
 
 ; --- Скачивание иконок ---
@@ -404,6 +445,10 @@ Gui, Main: Add, Picture, x29 y363 w80 h38 gInfo , %A_ScriptDir%\ahk\GqYwynV.png
 Gui, Main: Add, Picture, x113 y363 w80 h38 gOpenSite , %A_ScriptDir%\ahk\f1P9nBu.png
 Gui, Main: Add, Picture, x197 y363 w80 h38 gOpenAnotherSite , %A_ScriptDir%\ahk\Rj8QccZ.png
 Gui, Main: Add, Picture, x281 y363 w80 h38 gSaveData, %A_ScriptDir%\ahk\KxTO850.png
+return
+
+; ====== ЗДЕСЬ ОСНОВНОЙ КОД СКРИПТА ======
+MsgBox, Скрипт запущен. Текущая версия: %CurrentVersion%
 return
 
 ; Сохранение команд
